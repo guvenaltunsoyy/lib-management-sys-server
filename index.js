@@ -8,7 +8,21 @@ const Users = require("./Users");
 const AssignedBooks = require("./AssignedBooks");
 const API_PORT = 3001;
 const app = express();
-app.use(cors());
+var allowCrossDomain = function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, Content-Length, X-Requested-With"
+  );
+  // intercept OPTIONS method
+  if ("OPTIONS" == req.method) {
+    res.send(200);
+  } else {
+    next();
+  }
+};
+app.use(allowCrossDomain);
 const router = express.Router();
 
 // this is our MongoDB database
@@ -36,19 +50,19 @@ app.use(logger("dev"));
 router.get("/getBooks", (req, res) => {
   Books.find((err, data) => {
     if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, data: data });
+    return res.json({ success: true, books: data });
   });
 });
 router.get("/getUsers", (req, res) => {
   Users.find((err, data) => {
     if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, data: data });
+    return res.json({ success: true, users: data });
   });
 });
 router.get("/getAssignedBooks", (req, res) => {
   AssignedBooks.find((err, data) => {
     if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, data: data });
+    return res.json({ success: true, assignedBooks: data });
   });
 });
 // this is our update method
