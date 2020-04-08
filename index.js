@@ -147,7 +147,7 @@ router.post("/assignBook", (req, res) => {
 });
 
 // append /api for our http requests
-app.use("/", router);
+app.use("/api", router);
 
 // launch our backend into a port
 app.listen(API_PORT, () => console.log(`LISTENING ON PORT ${API_PORT}`));
