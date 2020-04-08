@@ -34,21 +34,21 @@ app.use(logger("dev"));
 // this is our get method
 // this method fetches all available data in our database
 router.get("/getBooks", (req, res) => {
-  Books.find((err, data) => {
+  Books.find((err, books) => {
     if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, books: data });
+    return res.json({ success: true, books });
   });
 });
 router.get("/getUsers", (req, res) => {
-  Users.find((err, data) => {
+  Users.find((err, users) => {
     if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, users: data });
+    return res.json({ success: true, users });
   });
 });
 router.get("/getAssignedBooks", (req, res) => {
-  AssignedBooks.find((err, data) => {
+  AssignedBooks.find((err, assignedBooks) => {
     if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, assignedBooks: data });
+    return res.json({ success: true, assignedBooks });
   });
 });
 // this is our update method
@@ -150,7 +150,7 @@ router.post("/assignBook", (req, res) => {
 app.use("/api", router);
 
 // launch our backend into a port
-app.listen(process.env.PORT || 3000, function () {
+app.listen(process.env.PORT || 3001, function () {
   console.log(
     "Express server listening on port %d in %s mode",
     this.address().port,
