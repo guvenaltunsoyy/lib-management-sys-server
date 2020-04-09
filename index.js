@@ -82,11 +82,27 @@ router.post("/login", async (req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ user: null }));
   } else {
-    const { name, surname, age, mail, schoolNumber, phoneNumber } = user;
+    const {
+      name,
+      surname,
+      age,
+      mail,
+      schoolNumber,
+      phoneNumber,
+      isManager,
+    } = user;
     res.setHeader("Content-Type", "application/json");
     res.end(
       JSON.stringify({
-        user: { name, surname, age, mail, schoolNumber, phoneNumber },
+        user: {
+          name,
+          surname,
+          age,
+          mail,
+          schoolNumber,
+          phoneNumber,
+          isManager,
+        },
       })
     );
   }
