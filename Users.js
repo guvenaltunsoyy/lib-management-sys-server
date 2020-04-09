@@ -11,6 +11,7 @@ const Users = new Schema(
     mail: String,
     schoolNumber: String,
     phoneNumber: String,
+    isManager: Boolean,
   },
   { timestamps: true }
 );

@@ -83,6 +83,7 @@ router.post("/login", async (req, res) => {
     res.end(JSON.stringify({ user: null }));
   } else {
     const {
+      _id,
       name,
       surname,
       age,
@@ -91,10 +92,13 @@ router.post("/login", async (req, res) => {
       phoneNumber,
       isManager,
     } = user;
+    console.log(user);
+
     res.setHeader("Content-Type", "application/json");
     res.end(
       JSON.stringify({
         user: {
+          _id,
           name,
           surname,
           age,
