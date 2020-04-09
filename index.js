@@ -71,6 +71,27 @@ router.delete("/deleteBook", (req, res) => {
   });
 });
 
+// LOGIN
+router.post("/login", async (req, res) => {
+  var user = await Users.findOne({ mail: req.body.mail });
+  if (
+    user === undefined ||
+    user === null ||
+    user.password !== req.body.password
+  ) {
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify({ user: null }));
+  } else {
+    const { name, surname, age, mail, schoolNumber, phoneNumber } = user;
+    res.setHeader("Content-Type", "application/json");
+    res.end(
+      JSON.stringify({
+        user: { name, surname, age, mail, schoolNumber, phoneNumber },
+      })
+    );
+  }
+});
+
 router.post("/addBook", (req, res) => {
   let data = new Books();
   console.log(req.body);
