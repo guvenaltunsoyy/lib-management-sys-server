@@ -31,6 +31,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(logger("dev"));
 
+function getTwoDateDiff(date1, date2) {
+  const difftime = Math.abs(date2 - date1);
+  const diffDays = Math.ceil(difftime / (1000 * 60 * 60 * 24));
+  return diffDays;
+}
 // this is our get method
 // this method fetches all available data in our database
 router.get("/getBooks", (req, res) => {
@@ -55,20 +60,89 @@ router.get("/getAssignedBooks", (req, res) => {
 // this method overwrites existing data in our database
 router.post("/updateBook", (req, res) => {
   const { title, author, quantity, isbnNumber } = req.body;
-  Book.findByIdAndUpdate(id, update, (err) => {
+  Books.findByIdAndUpdate(id, update, (err) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
   });
 });
 
-// this is our delete method
-// this method removes existing data in our database
-router.delete("/deleteBook", (req, res) => {
-  const { id } = req.body;
-  Book.findByIdAndRemove(id, (err) => {
-    if (err) return res.send(err);
-    return res.json({ success: true });
+router.post("/assign/book", async (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  var add = true;
+  var date = new Date(req.body.date);
+  var assignedBooksToUser = await AssignedBooks.find({
+    userId: req.body.userId,
   });
+  if (assignedBooksToUser !== undefined || assignedBooksToUser !== null) {
+    var notReceiptBooks = assignedBooksToUser.filter(
+      (record) => !record.isReceipt
+    );
+    if (notReceiptBooks.length >= 3) {
+      res.end(
+        JSON.stringify({
+          result: false,
+          message: "Kullanıcı üzerinde 3 kitap mevcut.",
+        })
+      );
+      return;
+    }
+    notReceiptBooks.map(
+      (record) =>
+        (add = getTwoDateDiff(date, record.createdAt) >= 7 ? false : add)
+    );
+  }
+  if (add) {
+    var book = await Books.findOne({ _id: req.body.bookId });
+    if (book === undefined || book === null) {
+      res.end(JSON.stringify({ result: false, message: "Kitap bulunamadı." }));
+    } else if (book.quantity > 0) {
+      var assignBook = new AssignedBooks();
+      assignBook.userId = req.body.userId;
+      assignBook.bookId = req.body.bookId;
+      assignBook.isReceipt = false;
+      AssignedBooks.create(assignBook, (err, assBook) => {
+        if (err) {
+          res.end(JSON.stringify({ result: false, message: err }));
+        } else {
+          Books.findByIdAndUpdate(
+            assignBook.bookId,
+            {
+              quantity: book.quantity - 1,
+            },
+            (err, r) => {
+              if (err) {
+                console.log("book not updated", err);
+              } else {
+                console.log("book updated ");
+              }
+            }
+          );
+          console.log("success");
+          res.end(
+            JSON.stringify({
+              result: true,
+              message: "Kitap alma işlemi başarılı. İyi okumalar...",
+            })
+          );
+        }
+      });
+    } else {
+      res.end(
+        JSON.stringify({
+          result: false,
+          message: "Kitap sayısı yeterli değil. Başka bir kitap seçiniz.",
+        })
+      );
+    }
+  } else {
+    res.end(
+      JSON.stringify({
+        result: false,
+        message:
+          "Kullanıcının 7 günü aşkın süredir iade etmediği kitap mevcut.",
+      })
+    );
+  }
 });
 
 // LOGIN
@@ -158,28 +232,6 @@ router.post("/addUser", (req, res) => {
   data.mail = mail;
   data.schoolNumber = schoolNumber;
   data.phoneNumber = phoneNumber;
-  data.save((err) => {
-    if (err) return res.json({ success: false, error: err });
-    console.log(true);
-    return res.json({ success: true });
-  });
-});
-
-router.post("/assignBook", (req, res) => {
-  let data = new AssignedBooks();
-  console.log(req.body);
-
-  const { userId, bookId } = JSON.parse(JSON.stringify(req.body));
-
-  if (userId === undefined || bookId === undefined) {
-    console.log(false);
-    return res.json({
-      success: false,
-      error: "INVALID INPUTS",
-    });
-  }
-  data.userId = userId;
-  data.bookId = bookId;
   data.save((err) => {
     if (err) return res.json({ success: false, error: err });
     console.log(true);

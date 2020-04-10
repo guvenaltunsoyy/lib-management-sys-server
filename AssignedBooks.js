@@ -6,6 +6,9 @@ const AssignedBooks = new Schema(
   {
     userId: Object,
     bookId: Object,
+    isReceipt: Boolean,
+    createdAt: Date,
+    updatedAt: Date,
   },
   { timestamps: true }
 );
