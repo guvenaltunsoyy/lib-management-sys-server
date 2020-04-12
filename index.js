@@ -166,7 +166,6 @@ router.post("/login", async (req, res) => {
       phoneNumber,
       isManager,
     } = user;
-    console.log(user);
 
     res.setHeader("Content-Type", "application/json");
     res.end(
