@@ -66,6 +66,36 @@ router.post("/updateBook", (req, res) => {
   });
 });
 
+router.post("/give/book", async (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  await AssignedBooks.updateOne(
+    {
+      _id: req.body.assignedBookId,
+    },
+    { $set: { isReceipt: true } },
+    (err, res2) => {
+      if (err) {
+        return res.json({ success: false });
+      }
+    }
+  );
+  var book = await Books.findOne({ _id: req.body.bookId });
+  Books.findByIdAndUpdate(
+    book._id,
+    {
+      quantity: book.quantity + 1,
+    },
+    (err, r) => {
+      if (err) {
+        console.log("book not updated", err);
+        return res.json({ success: false });
+      }
+      console.log("book updated");
+      return res.json({ success: true });
+    }
+  );
+});
+
 router.post("/assign/book", async (req, res) => {
   res.setHeader("Content-Type", "application/json");
   var add = true;
