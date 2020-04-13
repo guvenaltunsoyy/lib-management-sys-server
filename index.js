@@ -79,12 +79,12 @@ router.post("/give/book", async (req, res) => {
       }
     }
   );
-  var book = await Books.findOne({ _id: req.body.bookId });
-  Books.findByIdAndUpdate(
-    book._id,
+
+  Books.update(
     {
-      quantity: book.quantity + 1,
+      _id: req.body.bookId,
     },
+    { $inc: { quantity: +1 } },
     (err, r) => {
       if (err) {
         console.log("book not updated", err);
