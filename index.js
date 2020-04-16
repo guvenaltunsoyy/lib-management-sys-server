@@ -246,6 +246,7 @@ router.get("/getBooksAsManager", async (req, res) => {
         book: books.find((book) => {
           return book._id == assignedBook.bookId;
         }),
+        createdAt: assignedBook.createdAt,
       });
     });
   return res.json({ usersWithBooks });
