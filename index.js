@@ -56,15 +56,6 @@ router.get("/getAssignedBooks", (req, res) => {
     return res.json({ success: true, assignedBooks });
   });
 });
-// this is our update method
-// this method overwrites existing data in our database
-router.post("/updateBook", (req, res) => {
-  const { title, author, quantity, isbnNumber } = req.body;
-  Books.findByIdAndUpdate(id, update, (err) => {
-    if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true });
-  });
-});
 
 router.post("/give/book", async (req, res) => {
   res.setHeader("Content-Type", "application/json");
@@ -238,6 +229,26 @@ router.post("/addBook", (req, res) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
   });
+});
+
+router.get("/getBooksAsManager", async (req, res) => {
+  var usersWithBooks = [];
+  var aBooks = await AssignedBooks.find();
+  var books = await Books.find();
+  var users = await Users.find();
+  aBooks
+    .filter((x) => x.isReceipt == false)
+    .map((assignedBook) => {
+      usersWithBooks.push({
+        user: users.find((user) => {
+          return user._id == assignedBook.userId;
+        }),
+        book: books.find((book) => {
+          return book._id == assignedBook.bookId;
+        }),
+      });
+    });
+  return res.json({ usersWithBooks });
 });
 
 router.post("/addUser", (req, res) => {
