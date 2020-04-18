@@ -3,6 +3,7 @@ const express = require("express");
 var cors = require("cors");
 const bodyParser = require("body-parser");
 const logger = require("morgan");
+const request = require("request");
 const Books = require("./Books");
 const Users = require("./Users");
 const AssignedBooks = require("./AssignedBooks");
@@ -28,7 +29,14 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 // (optional) only made for logging and
 // bodyParser, parses the request body to be a readable json format
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(
+  bodyParser.urlencoded({
+    limit: "50mb",
+    extended: true,
+    parameterLimit: 50000,
+  })
+);
 app.use(logger("dev"));
 
 function getTwoDateDiff(date1, date2) {
@@ -278,6 +286,27 @@ router.post("/addUser", (req, res) => {
     console.log(true);
     return res.json({ success: true });
   });
+});
+
+router.post("/getNumber", async (req, res) => {
+  request.post(
+    "http://192.168.1.105:8080/goruntuoku",
+    {
+      json: {
+        base64: req.body.base64,
+        rows: req.body.rows,
+        cols: req.body.cols,
+      },
+    },
+    function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        console.log(body);
+        return res.json({ isbnNumber: body });
+      } else {
+        return res.json({ error });
+      }
+    }
+  );
 });
 
 // append /api for our http requests
