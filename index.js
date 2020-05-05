@@ -129,6 +129,7 @@ router.post("/assign/book", async (req, res) => {
       assignBook.userId = req.body.userId;
       assignBook.bookId = req.body.bookId;
       assignBook.isReceipt = false;
+      assignBook.createdAt = req.body.date;
       AssignedBooks.create(assignBook, (err, assBook) => {
         if (err) {
           res.end(JSON.stringify({ result: false, message: err }));
